@@ -34,14 +34,14 @@ FROM golang:latest as build
 
 WORKDIR $GOPATH/src/github.com/lfordyce/hero_cqrs
 
+COPY hero-services hero-services
+COPY pusher-service pusher-service
+COPY query-service query-service
 COPY util util
 COPY event event
 COPY db db
 COPY search search
 COPY schema schema
-COPY hero-services hero-services
-COPY pusher-service pusher-service
-COPY query-service query-service
 
 RUN go version && go get -u -v golang.org/x/vgo
 RUN vgo install ./...
