@@ -8,7 +8,7 @@ import (
 type Repository interface {
 	Close()
 	InsertHero(ctx context.Context, hero schema.Hero) error
-	ListHero(ctx context.Context, skip uint64, take uint64) ([]schema.Hero, error)
+	ListHeros(ctx context.Context, skip uint64, take uint64) ([]schema.Hero, error)
 }
 
 var impl Repository
@@ -25,6 +25,6 @@ func InsertHero(ctx context.Context, hero schema.Hero) error {
 	return impl.InsertHero(ctx, hero)
 }
 
-func ListHero(ctx context.Context, skip uint64, take uint64) ([]schema.Hero, error) {
-	return impl.ListHero(ctx, skip, take)
+func ListHeros(ctx context.Context, skip uint64, take uint64) ([]schema.Hero, error) {
+	return impl.ListHeros(ctx, skip, take)
 }

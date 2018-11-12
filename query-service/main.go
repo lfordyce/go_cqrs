@@ -6,8 +6,8 @@ import (
 	"github.com/kelseyhightower/envconfig"
 	"github.com/lfordyce/hero_cqrs/db"
 	"github.com/lfordyce/hero_cqrs/event"
-	"github.com/lfordyce/hero_cqrs/retry"
 	"github.com/lfordyce/hero_cqrs/search"
+	"github.com/lfordyce/hero_cqrs/util"
 	"log"
 	"net/http"
 	"time"
@@ -21,15 +21,16 @@ type Config struct {
 	ElasticsearchAddress string `envconfig:"ELASTICSEARCH_ADDRESS"`
 }
 
-func newRouter() (router *mux.Router)  {
+func newRouter() (router *mux.Router) {
 	router = mux.NewRouter()
-	router.HandleFunc("/heros", listHeroHandler).Methods("GET")
-	router.HandleFunc("/search", searchHerosHandler).Methods("GET")
+	router.HandleFunc("/heros", listHerosHandler).
+		Methods("GET")
+	router.HandleFunc("/search", searchHerosHandler).
+		Methods("GET")
 	return
 }
 
-func main()  {
-
+func main() {
 	var cfg Config
 	err := envconfig.Process("", &cfg)
 	if err != nil {
@@ -37,7 +38,7 @@ func main()  {
 	}
 
 	// Connect to PostgreSQL
-	retry.ForeverSleep(2*time.Second, func(attempt int) error {
+	util.ForeverSleep(2*time.Second, func(attempt int) error {
 		addr := fmt.Sprintf("postgres://%s:%s@postgres/%s?sslmode=disable", cfg.PostgresUser, cfg.PostgresPassword, cfg.PostgresDB)
 		repo, err := db.NewPostgres(addr)
 		if err != nil {
@@ -50,7 +51,7 @@ func main()  {
 	defer db.Close()
 
 	// Connect to ElasticSearch
-	retry.ForeverSleep(2*time.Second, func(_ int) error {
+	util.ForeverSleep(2*time.Second, func(_ int) error {
 		es, err := search.NewElastic(fmt.Sprintf("http://%s", cfg.ElasticsearchAddress))
 		if err != nil {
 			log.Println(err)
@@ -62,7 +63,7 @@ func main()  {
 	defer search.Close()
 
 	// Connect to Nats
-	retry.ForeverSleep(2*time.Second, func(_ int) error {
+	util.ForeverSleep(2*time.Second, func(_ int) error {
 		es, err := event.NewNats(fmt.Sprintf("nats://%s", cfg.NatsAddress))
 		if err != nil {
 			log.Println(err)

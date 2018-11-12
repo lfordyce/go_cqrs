@@ -7,12 +7,11 @@ type Message interface {
 }
 
 type HeroCreatedMessage struct {
-	ID string
-	Body string
+	ID        string
+	Body      string
 	CreatedAt time.Time
 }
 
 func (h *HeroCreatedMessage) Key() string {
 	return "hero.created"
 }
-

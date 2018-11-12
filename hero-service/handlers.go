@@ -19,7 +19,7 @@ func createHeroHandler(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
-	// Read paramters
+	// Read parameters
 	body := template.HTMLEscapeString(r.FormValue("body"))
 	if len(body) < 1 || len(body) > 140 {
 		util.ResponseError(w, http.StatusBadRequest, "Invalid body")
@@ -34,12 +34,12 @@ func createHeroHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	hero := schema.Hero{
-		ID: id.String(),
-		Body: body,
+		ID:        id.String(),
+		Body:      body,
 		CreatedAt: createdAt,
 	}
 	if err := db.InsertHero(ctx, hero); err != nil {
-		log.Panicln(err)
+		log.Println(err)
 		util.ResponseError(w, http.StatusInternalServerError, "Failed to create hero")
 		return
 	}

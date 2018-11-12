@@ -6,7 +6,7 @@ import (
 	"github.com/kelseyhightower/envconfig"
 	"github.com/lfordyce/hero_cqrs/db"
 	"github.com/lfordyce/hero_cqrs/event"
-	"github.com/lfordyce/hero_cqrs/retry"
+	"github.com/lfordyce/hero_cqrs/util"
 	"log"
 	"net/http"
 	"time"
@@ -23,7 +23,7 @@ func newRouter() (router *mux.Router) {
 	router = mux.NewRouter()
 	router.HandleFunc("/heros", createHeroHandler).
 		Methods("POST").
-		Queries("body", "{bodys}")
+		Queries("body", "{body}")
 	return
 }
 
@@ -34,10 +34,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	retry.ForeverSleep(2*time.Second, func(attempt int) error {
+	// Connect to PostgreSQL
+	util.ForeverSleep(2*time.Second, func(attempt int) error {
 		addr := fmt.Sprintf("postgres://%s:%s@postgres/%s?sslmode=disable", cfg.PostgresUser, cfg.PostgresPassword, cfg.PostgresDB)
 		repo, err := db.NewPostgres(addr)
 		if err != nil {
+			log.Println(err)
 			return err
 		}
 		db.SetRepository(repo)
@@ -45,7 +47,8 @@ func main() {
 	})
 	defer db.Close()
 
-	retry.ForeverSleep(2*time.Second, func(_ int) error {
+	// Connect to Nats
+	util.ForeverSleep(2*time.Second, func(_ int) error {
 		es, err := event.NewNats(fmt.Sprintf("nats://%s", cfg.NatsAddress))
 		if err != nil {
 			log.Println(err)

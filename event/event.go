@@ -4,8 +4,8 @@ import "github.com/lfordyce/hero_cqrs/schema"
 
 type EventStore interface {
 	Close()
-	PublishHeroCreated(h schema.Hero) error
-	SubscribeHeroCreated() (<- chan HeroCreatedMessage, error)
+	PublishHeroCreated(Hero schema.Hero) error
+	SubscribeHeroCreated() (<-chan HeroCreatedMessage, error)
 	OnHeroCreated(f func(HeroCreatedMessage)) error
 }
 
@@ -19,11 +19,11 @@ func Close() {
 	impl.Close()
 }
 
-func PublishHeroCreated(h schema.Hero) error{
-	return impl.PublishHeroCreated(h)
+func PublishHeroCreated(Hero schema.Hero) error {
+	return impl.PublishHeroCreated(Hero)
 }
 
-func SubscribeHeroCreated() (<- chan HeroCreatedMessage, error) {
+func SubscribeHeroCreated() (<-chan HeroCreatedMessage, error) {
 	return impl.SubscribeHeroCreated()
 }
 

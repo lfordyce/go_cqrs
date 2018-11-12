@@ -13,17 +13,18 @@ import (
 )
 
 func onHeroCreated(m event.HeroCreatedMessage) {
+	// Index hero for searching
 	hero := schema.Hero{
-		ID: m.ID,
-		Body: m.Body,
-		CreatedAt:m.CreatedAt,
+		ID:        m.ID,
+		Body:      m.Body,
+		CreatedAt: m.CreatedAt,
 	}
 	if err := search.InsertHero(context.Background(), hero); err != nil {
 		log.Println(err)
 	}
 }
 
-func listHeroHandler(w http.ResponseWriter, r *http.Request) {
+func listHerosHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	var err error
 
@@ -48,12 +49,13 @@ func listHeroHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Fetch heros
-	heros, err := db.ListHero(ctx, skip, take)
+	heros, err := db.ListHeros(ctx, skip, take)
 	if err != nil {
-		log.Panicln(err)
+		log.Println(err)
 		util.ResponseError(w, http.StatusInternalServerError, "Could not fetch heros")
 		return
 	}
+
 	util.ResponseOk(w, heros)
 }
 
@@ -93,5 +95,6 @@ func searchHerosHandler(w http.ResponseWriter, r *http.Request) {
 		util.ResponseOk(w, []schema.Hero{})
 		return
 	}
+
 	util.ResponseOk(w, heros)
 }

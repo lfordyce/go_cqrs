@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/lfordyce/hero_cqrs/event"
-	"github.com/lfordyce/hero_cqrs/retry"
+	"github.com/lfordyce/hero_cqrs/util"
 	"log"
 	"net/http"
 	"time"
@@ -23,7 +23,7 @@ func main() {
 
 	// Connect to Nats
 	hub := newHub()
-	retry.ForeverSleep(2*time.Second, func(_ int) error {
+	util.ForeverSleep(2*time.Second, func(_ int) error {
 		es, err := event.NewNats(fmt.Sprintf("nats://%s", cfg.NatsAddress))
 		if err != nil {
 			log.Println(err)
@@ -32,7 +32,7 @@ func main() {
 
 		// Push messages to clients
 		err = es.OnHeroCreated(func(m event.HeroCreatedMessage) {
-			log.Printf("Meow received: %v\n", m)
+			log.Printf("Hero received: %v\n", m)
 			hub.broadcast(newHeroCreatedMessage(m.ID, m.Body, m.CreatedAt), nil)
 		})
 		if err != nil {
@@ -53,4 +53,3 @@ func main() {
 		log.Fatal(err)
 	}
 }
-

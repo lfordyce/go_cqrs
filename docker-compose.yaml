@@ -3,15 +3,15 @@ version: "3.6"
 services:
   hero:
     build: "."
-    command: "hero-services"
+    command: "hero-service"
     depends_on:
     - "postgres"
     - "nats"
     ports:
     - "8080"
     environment:
-      POSTGRES_DB: "hero"
-      POSTGRES_USER: "hero"
+      POSTGRES_DB: "heroer"
+      POSTGRES_USER: "heroer"
       POSTGRES_PASSWORD: "123456"
       NATS_ADDRESS: "nats:4222"
   query:
@@ -23,8 +23,8 @@ services:
     ports:
     - "8080"
     environment:
-      POSTGRES_DB: "hero"
-      POSTGRES_USER: "hero"
+      POSTGRES_DB: "heroer"
+      POSTGRES_USER: "heroer"
       POSTGRES_PASSWORD: "123456"
       NATS_ADDRESS: "nats:4222"
       ELASTICSEARCH_ADDRESS: "elasticsearch:9200"
@@ -41,8 +41,8 @@ services:
     build: "./postgres"
     restart: "always"
     environment:
-      POSTGRES_DB: "hero"
-      POSTGRES_USER: "hero"
+      POSTGRES_DB: "heroer"
+      POSTGRES_USER: "heroer"
       POSTGRES_PASSWORD: "123456"
   nats:
     image: "nats-streaming:0.9.2"

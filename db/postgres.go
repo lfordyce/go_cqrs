@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"github.com/lfordyce/hero_cqrs/schema"
+	_ "github.com/lib/pq"
 )
 
 type PostgresRepository struct {
@@ -12,10 +13,13 @@ type PostgresRepository struct {
 
 func NewPostgres(url string) (*PostgresRepository, error) {
 	db, err := sql.Open("postgres", url)
-	if err !=  nil {
+	if err != nil {
 		return nil, err
 	}
-
+	err = db.Ping()
+	if err != nil {
+		return nil, err
+	}
 	return &PostgresRepository{
 		db,
 	}, nil
@@ -30,18 +34,14 @@ func (r *PostgresRepository) InsertHero(ctx context.Context, hero schema.Hero) e
 	return err
 }
 
-func (r *PostgresRepository) ListHero(ctx context.Context, skip uint64, take uint64) ([]schema.Hero, error) {
-
-	//rows, err := r.db.Query("SELECT * FROM meows ORDER BY id DESC OFFSET $1 LIMIT $2", skip, take)
-
+func (r *PostgresRepository) ListHeros(ctx context.Context, skip uint64, take uint64) ([]schema.Hero, error) {
 	rows, err := r.db.Query("SELECT * FROM heros ORDER BY id DESC OFFSET $1 LIMIT $2", skip, take)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	// Pares all rows into an array of Heros
-	// var heros []schema.Hero
+	// Parse all rows into an array of heros
 	heros := []schema.Hero{}
 	for rows.Next() {
 		hero := schema.Hero{}
@@ -52,5 +52,6 @@ func (r *PostgresRepository) ListHero(ctx context.Context, skip uint64, take uin
 	if err = rows.Err(); err != nil {
 		return nil, err
 	}
+
 	return heros, nil
 }
