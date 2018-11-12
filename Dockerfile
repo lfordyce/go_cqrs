@@ -31,20 +31,33 @@
 
 
 FROM golang:latest as build
+RUN go version && go get -u -v golang.org/x/vgo
+#WORKDIR $GOPATH/src/github.com/lfordyce/hero_cqrs
+WORKDIR go/src/github.com/lfordyce/hero_cqrs
 
-WORKDIR $GOPATH/src/github.com/lfordyce/hero_cqrs
+# Populate the module cache based on the go.{mod,sum} files.
+#COPY go.mod go.mod
+#COPY go.sum go.sum
+#RUN vgo list -e $(vgo list -f '{{.Path}}' -m all)s
 
-COPY hero-services hero-services
-COPY pusher-service pusher-service
-COPY query-service query-service
 COPY util util
 COPY event event
 COPY db db
 COPY search search
 COPY schema schema
+COPY retry retry
+COPY hero-services hero-services
+COPY pusher-service pusher-service
+COPY query-service query-service
 
-RUN go version && go get -u -v golang.org/x/vgo
+COPY go.mod go.mod
+COPY go.sum go.sum
+RUN vgo list -e $(vgo list -f '{{.Path}}' -m all)s
+
+#RUN go version && go get -u -v golang.org/x/vgo
 RUN vgo install ./...
 
 FROM gcr.io/distroless/base
-COPY --from=build /go/bin/hero_cqrs /
+#COPY --from=build /go/bin/hero_cqrs /
+WORKDIR /usr/bin
+COPY --from=build /go/bin .
